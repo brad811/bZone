@@ -1,0 +1,10 @@
+name: bZone
+main: com.bradsproject.BradleyJewell.bZone.bZone
+version: 1.0
+description: Control independent zones of your world!
+authors:
+  - Brad811
+commands:
+  zone:
+    description: Get the name of your current zone.
+    usage: /<command>
