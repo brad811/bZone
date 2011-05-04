@@ -267,7 +267,7 @@ public class bZone extends JavaPlugin
 			if(zone == null)
 			{
 				Wilderness wild = getWilderness(location);
-				if(wild.protection.get(type) == true)
+				if(!wild.hasPlayer(player.getName()) && wild.protection.get(type) == true)
 				{
 					player.sendMessage("The wilderness has "+type+" protection.");
 					return true;
