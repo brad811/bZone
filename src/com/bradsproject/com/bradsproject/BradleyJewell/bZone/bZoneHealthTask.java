@@ -23,24 +23,33 @@ public class bZoneHealthTask implements Runnable
 		for(World world : worlds)
 		{
 			List<LivingEntity> players = world.getLivingEntities();
-			for(LivingEntity player : players)
+			for(LivingEntity p : players)
 			{
-				if(!(player instanceof Player))
+				if(!(p instanceof Player))
 					continue;
+				
+				Player player = (Player)p;
 				
 				try {
 					try {
 						Zone zone = plugin.getZone(player.getLocation());
-						if(zone.healing)
+						if(zone == null)
+						{
+							Wilderness wild = plugin.getWilderness(player.getLocation());
+							if(wild.hurting && !wild.hasPlayer(player.getName()))
+							{
+								if(player.getHealth() > 0)
+									player.setHealth(player.getHealth() - 1);
+							}
+						}
+						else if(zone.healing)
 						{
 							if(player.getHealth() < 20 && player.getHealth() > 0)
 								player.setHealth(player.getHealth() + 1);
 						}
 					} catch(NullPointerException e)
 					{
-						// user is in wilderness, don't heal them
-						// ... HURT THEM.
-						//player.setHealth(player.getHealth() - 1);
+						
 					}
 				} catch(IllegalArgumentException e)
 				{

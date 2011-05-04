@@ -41,6 +41,7 @@ public class bZone extends JavaPlugin
 {
 	final HashMap<String, String> defaults = new HashMap<String, String>();
 	final List<Zone> zones = new ArrayList<Zone>();
+	final List<Wilderness> wilds = new ArrayList<Wilderness>();
 	final List<String> whitelist = new ArrayList<String>();
 	final Map<String, bZonePlayer> players = new HashMap<String, bZonePlayer>();
 	
@@ -134,46 +135,76 @@ public class bZone extends JavaPlugin
 		{
 			String name = groupKey;
 			Map<String, Object> value = (Map<String, Object>) swarmsNode.get(groupKey);
-			
 			String w = value.get("world").toString();
 			World world = getServer().getWorld(w);
-			String[] min = value.get("min").toString().split(",");
-			String[] max = value.get("max").toString().split(",");
 			
-			Zone zone = new Zone(
-					name,
-					world,
-					Double.parseDouble(min[0]),
-					Double.parseDouble(min[1]),
-					Double.parseDouble(min[2]),
-					Double.parseDouble(max[0]),
-					Double.parseDouble(max[1]),
-					Double.parseDouble(max[2])
-			);
-			
-			zone.healing = Boolean.parseBoolean(value.get("healing").toString());
-			
-			List<String> playersNode = (List<String>) value.get("players");
-			for(String player : playersNode)
+			if(name.equals("wilderness"))
 			{
-				zone.players.add(player);
+				Wilderness wild = new Wilderness(world);
+				wild.hurting = Boolean.parseBoolean(value.get("hurting").toString());
+				
+				List<String> playersNode = (List<String>) value.get("players");
+				for(String player : playersNode)
+				{
+					wild.players.add(player);
+				}
+				
+				List<String> monstersNode = (List<String>) value.get("creatures");
+				for(String monster : monstersNode)
+				{
+					wild.creatures.add(monster);
+				}
+				
+				Map<String,Object> protectionNode = (Map<String,Object>) value.get("protection");
+				for(String protect : protectionNode.keySet())
+				{
+					boolean isProtected = Boolean.parseBoolean(protectionNode.get(protect).toString());
+					wild.protection.put(protect, isProtected);
+				}
+				
+				wilds.add(wild);
+				System.out.println("bZone loaded wilderness for: " + wild.world.getName());
 			}
-			
-			List<String> monstersNode = (List<String>) value.get("creatures");
-			for(String monster : monstersNode)
+			else
 			{
-				zone.creatures.add(monster);
+				String[] min = value.get("min").toString().split(",");
+				String[] max = value.get("max").toString().split(",");
+				
+				Zone zone = new Zone(
+						name,
+						world,
+						Double.parseDouble(min[0]),
+						Double.parseDouble(min[1]),
+						Double.parseDouble(min[2]),
+						Double.parseDouble(max[0]),
+						Double.parseDouble(max[1]),
+						Double.parseDouble(max[2])
+				);
+				
+				zone.healing = Boolean.parseBoolean(value.get("healing").toString());
+				
+				List<String> playersNode = (List<String>) value.get("players");
+				for(String player : playersNode)
+				{
+					zone.players.add(player);
+				}
+				
+				List<String> monstersNode = (List<String>) value.get("creatures");
+				for(String monster : monstersNode)
+				{
+					zone.creatures.add(monster);
+				}
+				
+				Map<String,Object> protectionNode = (Map<String,Object>) value.get("protection");
+				for(String protect : protectionNode.keySet())
+				{
+					boolean isProtected = Boolean.parseBoolean(protectionNode.get(protect).toString());
+					zone.protection.put(protect, isProtected);
+				}
+				
+				zones.add(zone);
+				System.out.println("bZone loaded zone: " + zone.name);
 			}
-			
-			Map<String,Object> protectionNode = (Map<String,Object>) value.get("protection");
-			for(String protect : protectionNode.keySet())
-			{
-				boolean isProtected = Boolean.parseBoolean(protectionNode.get(protect).toString());
-				zone.protection.put(protect, isProtected);
-			}
-			
-			zones.add(zone);
-			System.out.println("bZone loaded zone: " + zone.name);
 		}
 	}
 	
@@ -184,6 +215,18 @@ public class bZone extends JavaPlugin
 			if(zone.contains(location))
 			{
 				return zone;
+			}
+		}
+		return null;
+	}
+	
+	public Wilderness getWilderness(Location location)
+	{
+		for(Wilderness wild : wilds)
+		{
+			if(wild.world.getName().equals(location.getWorld().getName()))
+			{
+				return wild;
 			}
 		}
 		return null;
@@ -220,28 +263,24 @@ public class bZone extends JavaPlugin
 	public boolean cancelAction(Location location, Player player, String type)
 	{
 		try {
-			Player p = (Player)player;
-			if(!whitelist.contains(p.getName()))
-			{
-				//p.kickPlayer("Visit http://www.bradsproject.com/minecraft to play!");
-				return true;
-			}
-			
 			Zone zone = getZone(location);
-			if(!zone.hasPlayer(player.getName()) && (zone.protection.get(type) == true))
+			if(zone == null)
+			{
+				Wilderness wild = getWilderness(location);
+				if(wild.protection.get(type) == true)
+				{
+					player.sendMessage("The wilderness has "+type+" protection.");
+					return true;
+				}
+			}
+			else if(!zone.hasPlayer(player.getName()) && (zone.protection.get(type) == true))
 			{
 				player.sendMessage("Zone "+zone.name+" has "+type+" protection.");
 				return true;
 			}
 		} catch(NullPointerException e)
 		{
-			try {
-				player.sendMessage("The wilderness has "+type+" protection.");
-			} catch(NullPointerException e2)
-			{
-				
-			}
-			return true;
+			return false;
 		}
 		return false;
 	}
@@ -250,24 +289,23 @@ public class bZone extends JavaPlugin
 	{
 		try {
 			Zone zone = getZone(location);
-			if((zone.protection.get(type) == true))
+			if(zone == null)
+			{
+				Wilderness wild = getWilderness(location);
+				if(wild.protection.get(type) == true)
+				{
+					return true;
+				}
+			}
+			else if((zone.protection.get(type) == true))
 			{
 				return true;
 			}
 		} catch(NullPointerException e)
 		{
-			return true;
+			return false;
 		}
 		return false;
 	}
 	
-	public int getValue(int item)
-	{
-		return 0;
-	}
-	
-	public int getCost(int item)
-	{
-		return 1;
-	}
 }
