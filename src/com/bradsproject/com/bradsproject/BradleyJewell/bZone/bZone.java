@@ -86,11 +86,6 @@ public class bZone extends JavaPlugin
 	
 	public void onDisable()
 	{
-		// NOTE: All registered events are automatically unregistered when a
-		// plugin is disabled
-		
-		// EXAMPLE: Custom code, here we just output some info so we can check
-		// all is well
 		System.out.println("bZone has been disabled!");
 	}
 	

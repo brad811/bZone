@@ -44,7 +44,16 @@ public class bZoneEntityListener extends EntityListener
 		String type = entity.toString().replace("Craft", "").toLowerCase();
 		
 		try {
-			if(!zone.creatures.contains(type))
+			if(zone == null)
+			{
+				Wilderness wild = plugin.getWilderness(location);
+				if(!wild.creatures.contains(type))
+				{
+					entity.remove();
+					return true;
+				}
+			}
+			else if(!zone.creatures.contains(type))
 			{
 				entity.remove();
 				return true;
@@ -76,7 +85,18 @@ public class bZoneEntityListener extends EntityListener
 		try {
 			Location location = entity.getLocation();
 			Zone zone = plugin.getZone(location);
-			if((zone.protection.get(type) == true))
+			
+			if(zone == null)
+			{
+				Wilderness wild = plugin.getWilderness(location);
+				if(wild.protection.get(type) == true)
+				{
+					//player.sendMessage("The wilderness has "+type+" protection.");
+					entity.remove();
+					return true;
+				}
+			}
+			else if(zone.protection.get(type) == true)
 			{
 				//player.sendMessage("Zone "+zone.name+" has "+type+" protection.");
 				entity.remove();
@@ -95,7 +115,15 @@ public class bZoneEntityListener extends EntityListener
 	{
 		try {
 			Zone zone = plugin.getZone(location);
-			if((zone.protection.get(type) == true))
+			if(zone == null)
+			{
+				Wilderness wild = plugin.getWilderness(location);
+				if(wild.protection.get(type) == true)
+				{
+					return true;
+				}
+			}
+			else if((zone.protection.get(type) == true))
 			{
 				return true;
 			}
