@@ -139,15 +139,21 @@ public class bZone extends JavaPlugin
 				wild.hurting = Boolean.parseBoolean(value.get("hurting").toString());
 				
 				List<String> playersNode = (List<String>) value.get("players");
-				for(String player : playersNode)
+				if(playersNode != null)
 				{
-					wild.players.add(player);
+					for(String player : playersNode)
+					{
+						wild.players.add(player);
+					}
 				}
 				
 				List<String> monstersNode = (List<String>) value.get("creatures");
-				for(String monster : monstersNode)
+				if(monstersNode != null)
 				{
-					wild.creatures.add(monster);
+					for(String monster : monstersNode)
+					{
+						wild.creatures.add(monster);
+					}
 				}
 				
 				Map<String,Object> protectionNode = (Map<String,Object>) value.get("protection");
@@ -179,15 +185,21 @@ public class bZone extends JavaPlugin
 				zone.healing = Boolean.parseBoolean(value.get("healing").toString());
 				
 				List<String> playersNode = (List<String>) value.get("players");
-				for(String player : playersNode)
+				if(playersNode != null)
 				{
-					zone.players.add(player);
+					for(String player : playersNode)
+					{
+						zone.players.add(player);
+					}
 				}
 				
 				List<String> monstersNode = (List<String>) value.get("creatures");
-				for(String monster : monstersNode)
+				if(monstersNode != null)
 				{
-					zone.creatures.add(monster);
+					for(String monster : monstersNode)
+					{
+						zone.creatures.add(monster);
+					}
 				}
 				
 				Map<String,Object> protectionNode = (Map<String,Object>) value.get("protection");
