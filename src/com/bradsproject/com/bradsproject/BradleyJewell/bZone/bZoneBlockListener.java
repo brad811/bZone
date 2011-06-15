@@ -1,7 +1,7 @@
 package com.bradsproject.BradleyJewell.bZone;
 
 import org.bukkit.Location;
-import org.bukkit.Material;
+//import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockBurnEvent;
@@ -33,6 +33,7 @@ public class bZoneBlockListener extends BlockListener
 		Location location = event.getBlock().getLocation();
 		Player player = event.getPlayer();
 		
+		/*
 		if(event.getBlock().getType() == Material.BEDROCK)
 		{
 			event.setCancelled(true);
@@ -49,8 +50,9 @@ public class bZoneBlockListener extends BlockListener
 		}
 		else
 		{
+		*/
 			event.setCancelled(plugin.cancelAction(location, player, "build"));
-		}
+		//}
 	}
 	
 	@Override

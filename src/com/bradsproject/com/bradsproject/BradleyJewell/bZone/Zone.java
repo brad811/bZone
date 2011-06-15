@@ -28,9 +28,9 @@ public class Zone
 		minX = mx;
 		minY = my;
 		minZ = mz;
-		maxX = Mx;
-		maxY = My;
-		maxZ = Mz;
+		maxX = Mx - .001;
+		maxY = My - .001;
+		maxZ = Mz - .001;
 		
 		spawn = new Location(world, maxX - (maxX - minX)/2, maxY - (maxY - minY)/2, maxZ - (maxZ - minZ)/2);
 		
@@ -42,6 +42,10 @@ public class Zone
 	public boolean contains(Location location)
 	{
 		double x = location.getX(), y = location.getY(), z = location.getZ();
+		
+		if(location.getWorld() != world)
+			return false;
+		
 		return contains(x,y,z);
 	}
 	
